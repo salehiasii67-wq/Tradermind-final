@@ -609,25 +609,48 @@ export const backupService = {
   },
 
   // ────────── جایگزینی کامل ──────────
+  /**
+   * Atomic full restore: تمام جداول (core + extended) در یک Dexie transaction.
+   * اگر هر مرحله‌ای fail شود، Dexie کل عملیات را rollback می‌کند و DB سالم می‌ماند.
+   */
   async importReplace(data: BackupData['data']): Promise<void> {
-    await db.transaction('rw',
-      [db.strategies, db.phases, db.steps, db.rules,
-       db.analysisSessions, db.trades, db.dailyJournals],
-      async () => {
-        await Promise.all([
-          db.strategies.clear(), db.phases.clear(), db.steps.clear(),
-          db.rules.clear(), db.analysisSessions.clear(),
-          db.trades.clear(), db.dailyJournals.clear(),
-        ]);
-        if (data.strategies?.length) await db.strategies.bulkAdd(data.strategies);
-        if (data.phases?.length) await db.phases.bulkAdd(data.phases);
-        if (data.steps?.length) await db.steps.bulkAdd(data.steps);
-        if (data.rules?.length) await db.rules.bulkAdd(data.rules);
-        if (data.analysisSessions?.length) await db.analysisSessions.bulkAdd(data.analysisSessions);
-        if (data.trades?.length) await db.trades.bulkAdd(data.trades);
-        if (data.dailyJournals?.length) await db.dailyJournals.bulkAdd(data.dailyJournals);
-      }
-    );
+    // همه جداول موجود در backup را در یک transaction restore می‌کنیم
+    const tables = [
+      db.strategies, db.phases, db.steps, db.rules,
+      db.analysisSessions, db.trades, db.dailyJournals,
+      db.tradeEvents, db.tradeVersions, db.chartScreenshots,
+      db.riskViolations, db.replaySessions, db.replayDecisions,
+      db.knowledgeNotes, db.accounts, db.tradingBoxes,
+      db.performanceReviews,
+    ];
+
+    await db.transaction('rw', tables, async () => {
+      // ── پاکسازی همه جداول ──
+      await Promise.all(tables.map(t => t.clear()));
+
+      // ── جداول اصلی ──
+      if (data.strategies?.length)      await db.strategies.bulkAdd(data.strategies as Strategy[]);
+      if (data.phases?.length)          await db.phases.bulkAdd(data.phases as Phase[]);
+      if (data.steps?.length)           await db.steps.bulkAdd(data.steps as Step[]);
+      if (data.rules?.length)           await db.rules.bulkAdd(data.rules as Rule[]);
+      if (data.analysisSessions?.length) await db.analysisSessions.bulkAdd(data.analysisSessions as AnalysisSession[]);
+      if (data.trades?.length)          await db.trades.bulkAdd(data.trades as Trade[]);
+      if (data.dailyJournals?.length)   await db.dailyJournals.bulkAdd(data.dailyJournals as DailyJournal[]);
+
+      // ── جداول اضافی (اختیاری — ممکن است در backup قدیمی نباشند) ──
+      if (data.tradeEvents?.length)       await db.tradeEvents.bulkAdd(data.tradeEvents as any[]);
+      if (data.tradeVersions?.length)     await db.tradeVersions.bulkAdd(data.tradeVersions as any[]);
+      if (data.chartScreenshots?.length)  await db.chartScreenshots.bulkAdd(data.chartScreenshots as any[]);
+      if (data.riskViolations?.length)    await db.riskViolations.bulkAdd(data.riskViolations as any[]);
+      if (data.replaySessions?.length)    await db.replaySessions.bulkAdd(data.replaySessions as any[]);
+      if (data.replayDecisions?.length)   await db.replayDecisions.bulkAdd(data.replayDecisions as any[]);
+      if (data.knowledgeNotes?.length)    await db.knowledgeNotes.bulkAdd(data.knowledgeNotes as any[]);
+      if (data.accounts?.length)          await db.accounts.bulkAdd(data.accounts as any[]);
+      if (data.tradingBoxes?.length)      await db.tradingBoxes.bulkAdd(data.tradingBoxes as any[]);
+      if (data.performanceReviews?.length) await db.performanceReviews.bulkAdd(data.performanceReviews as any[]);
+    });
+
+    // Settings در localStorage ذخیره می‌شود — خارج از IndexedDB transaction (قابل قبول)
     if (data.settings) this.importSettings(data.settings);
   },
 
