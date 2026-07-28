@@ -1,45 +1,49 @@
-# [Project name]
+# TraderMind OS (imported & running)
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+## Overview
+TraderMind OS is a comprehensive offline-first trading journal and analytics platform built with React + Vite. All data is stored locally in the browser via IndexedDB (Dexie.js). No server, no cloud sync — fully private.
 
-## Run & Operate
+## Architecture
+- **Frontend**: React 19, TypeScript, Vite 7
+- **Styling**: Tailwind CSS v4, Radix UI, shadcn/ui
+- **Database**: Dexie v4 (IndexedDB), schema v21
+- **State**: Zustand (with `useShallow` selectors for performance)
+- **Data fetching**: TanStack Query v5
+- **Virtualization**: @tanstack/react-virtual v3 (TradeJournal, large lists)
+- **Analytics**: Custom metrics engine + Web Worker (analytics.worker.ts)
+- **Charts**: Recharts
+- **i18n**: Persian (Farsi / RTL) — full support via Vazirmatn font
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
-- `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+## Artifact Layout
+- `artifacts/tradermind/` — Main React web app (slug: `tradermind`, preview: `/`)
+- `artifacts/api-server/` — API server (not used by main app — offline-first)
 
-## Stack
+## Key Directories (inside `artifacts/tradermind/src/`)
+| Path | Purpose |
+|------|---------|
+| `db/database.ts` | Dexie schema v21 (Trade, Strategy, Account, DailyJournal, …) |
+| `core/repositories/` | Typed Dexie queries — always use instead of `db.x.toArray()` |
+| `core/metrics/` | Pure metric functions (PnL, win-rate, expectancy, risk, …) |
+| `services/analyticsEngine.ts` | Main analytics orchestrator |
+| `services/analyticsCacheService.ts` | In-memory analytics cache (invalidated on DB writes) |
+| `services/seedService.ts` | Dev tool — generates 10k synthetic trades for perf testing |
+| `workers/analytics.worker.ts` | Web Worker for heavy off-thread analytics |
+| `hooks/useTradeAnalytics.ts` | React Query hook — AbortController guards |
+| `hooks/useAllTrades.ts` | React Query hook — uses repository |
+| `store/useAppStore.ts` | Zustand store (always use `useShallow` selectors) |
+| `pages/TradeJournal.tsx` | Virtualized trade list (react-virtual) |
 
-- pnpm workspaces, Node.js 24, TypeScript 5.9
-- API: Express 5
-- DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
-- API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
+## Prompt 3 — Performance Hardening (done)
+- Repository pattern for all DB reads (no raw `db.x.toArray()`)
+- In-memory analytics cache (`analyticsCacheService`)
+- Web Worker for edge/perf/risk/stats analytics
+- AbortController guards in `useTradeAnalytics` and `usePsychologyData`
+- Zustand `useShallow` selectors in Sidebar, ThemeProvider, Settings
+- `@tanstack/react-virtual` virtualization in TradeJournal
+- Dynamic import for xlsx in backupService (already done)
+- Synthetic data seed utility (10,000 trades)
 
-## Where things live
-
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
-
-## Architecture decisions
-
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
-
-## Product
-
-_Describe the high-level user-facing capabilities of this app once they exist._
-
-## User preferences
-
-_Populate as you build — explicit user instructions worth remembering across sessions._
-
-## Gotchas
-
-_Populate as you build — sharp edges, "always run X before Y" rules._
-
-## Pointers
-
-- See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+## User Preferences
+- Persian (Farsi) UI — maintain RTL layout
+- Dark mode default
+- Offline-first — no API calls, no auth required

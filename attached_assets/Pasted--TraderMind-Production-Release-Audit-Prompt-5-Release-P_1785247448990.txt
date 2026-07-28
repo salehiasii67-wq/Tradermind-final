@@ -1,0 +1,346 @@
+# TraderMind Production Release Audit — Prompt 5
+## هدف: بررسی نهایی، امنیت، Release Preparation و Production Readiness
+
+
+Project:
+
+TraderMind OS
+
+
+Current:
+
+Database v23
+
+
+هدف:
+
+آماده‌سازی نسخه Release Candidate
+
+
+
+====================================================
+PART 1 — Full Architecture Audit
+====================================================
+
+
+کل پروژه را بررسی کن:
+
+
+Database
+
+Services
+
+Repositories
+
+Components
+
+Workers
+
+Storage
+
+Backup
+
+Security
+
+
+
+گزارش بده:
+
+
+Critical
+
+High
+
+Medium
+
+Low
+
+
+
+====================================================
+PART 2 — Security Review
+====================================================
+
+
+بررسی:
+
+
+Encryption
+
+Backup encryption
+
+Password handling
+
+Local storage
+
+IndexedDB exposure
+
+
+
+موارد:
+
+
+securityService.ts
+
+
+
+بررسی:
+
+
+- اطلاعات حساس در localStorage نباشد
+- کلیدهای رمزگذاری ذخیره نشوند
+- Password hash امن باشد
+
+
+
+====================================================
+PART 3 — Database Integrity Test
+====================================================
+
+
+تست:
+
+
+Create trade
+
+Update trade
+
+Delete trade
+
+Restore backup
+
+Migration
+
+
+بررسی:
+
+
+No orphan data
+
+No broken relations
+
+No corrupted records
+
+
+
+====================================================
+PART 4 — Backup Recovery Test
+====================================================
+
+
+سناریوها:
+
+
+Backup کوچک
+
+Backup بزرگ
+
+Backup خراب
+
+Backup نسخه قدیمی
+
+
+
+نتیجه:
+
+
+Restore موفق
+
+یا
+
+
+Error message واضح
+
+
+
+====================================================
+PART 5 — Performance Benchmark
+====================================================
+
+
+ساخت دیتای آزمایشی:
+
+
+10000 Trades
+
+5000 Screenshots
+
+100 Strategies
+
+
+
+اندازه‌گیری:
+
+
+App startup
+
+Dashboard load
+
+Analytics calculation
+
+Trade search
+
+Backup export
+
+
+
+ثبت نتایج.
+
+
+
+====================================================
+PART 6 — PWA Audit
+====================================================
+
+
+بررسی:
+
+
+Service Worker
+
+Offline mode
+
+Cache strategy
+
+Installability
+
+Manifest
+
+
+
+تست:
+
+
+قطع اینترنت
+
+Reload
+
+Open app
+
+
+
+====================================================
+PART 7 — Electron Audit
+====================================================
+
+
+بررسی:
+
+
+Electron build
+
+File access
+
+Storage location
+
+Auto update readiness
+
+
+
+====================================================
+PART 8 — Android Capacitor Audit
+====================================================
+
+
+بررسی:
+
+
+Build Android
+
+Permissions
+
+Storage
+
+Offline functionality
+
+
+
+====================================================
+PART 9 — User Experience Audit
+====================================================
+
+
+بررسی:
+
+
+Loading states
+
+Empty states
+
+Error messages
+
+Mobile layout
+
+RTL
+
+Dark mode
+
+
+
+====================================================
+PART 10 — Release Checklist
+====================================================
+
+
+ایجاد:
+
+
+RELEASE_CHECKLIST.md
+
+
+
+شامل:
+
+
+✓ Database migration tested
+
+✓ Backup tested
+
+✓ Build successful
+
+✓ PWA tested
+
+✓ Electron tested
+
+✓ Android tested
+
+✓ Performance tested
+
+✓ Security reviewed
+
+
+
+====================================================
+Final Report
+====================================================
+
+
+ارائه بده:
+
+
+Production Score:
+
+/100
+
+
+Remaining risks:
+
+
+Recommended next improvements:
+
+
+Release decision:
+
+
+READY
+
+or
+
+NOT READY
+
+
+
+هدف:
+
+
+TraderMind Production Release Candidate
