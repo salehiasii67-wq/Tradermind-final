@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "KfJxyCCBz_5wuZmUtlXZy"
+uri = "file://tradermind-web.zip"
+type = "unspecified"
+title = "TraderMind OS — سورس کد (برای ساخت EXE)"
