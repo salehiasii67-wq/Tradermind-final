@@ -1,59 +1,59 @@
 /**
- * Semantic design tokens for the mobile app.
- *
- * These tokens mirror the naming conventions used in web artifacts (index.css)
- * so that multi-artifact projects share a cohesive visual identity.
- *
- * Replace the placeholder values below with values that match the project's
- * brand. If a sibling web artifact exists, read its index.css and convert the
- * HSL values to hex so both artifacts use the same palette.
- *
- * To add dark mode, add a `dark` key with the same token names.
- * The useColors() hook will automatically pick it up.
+ * Design tokens derived from the TraderMind web app (index.css dark theme).
+ * HSL values converted to hex for React Native compatibility.
  */
 
 const colors = {
   light: {
-    // Legacy aliases (kept for backward compatibility)
-    text: '#0a0a0a',
-    tint: '#2f95dc',
-
-    // Core surfaces
-    background: '#ffffff',
-    foreground: '#0a0a0a',
-
-    // Cards / elevated surfaces
-    card: '#f9f9f9',
-    cardForeground: '#0a0a0a',
-
-    // Primary action color (buttons, links, active states)
-    primary: '#2f95dc',
+    text: '#0d1017',
+    tint: '#3b82f6',
+    background: '#f0f1f5',
+    foreground: '#0d1017',
+    card: '#ffffff',
+    cardForeground: '#0d1017',
+    primary: '#3b82f6',
     primaryForeground: '#ffffff',
-
-    // Secondary / less-emphasis interactive surfaces
-    secondary: '#f0f0f0',
-    secondaryForeground: '#1a1a1a',
-
-    // Muted / subdued elements (dividers, timestamps, placeholders)
-    muted: '#f0f0f0',
-    mutedForeground: '#737373',
-
-    // Accent highlights (badges, selected items, focus rings)
-    accent: '#f0f0f0',
-    accentForeground: '#1a1a1a',
-
-    // Destructive actions (delete, error states)
-    destructive: '#ef4444',
+    secondary: '#e3e7ec',
+    secondaryForeground: '#0d1017',
+    muted: '#e3e7ec',
+    mutedForeground: '#657688',
+    accent: '#e3e7ec',
+    accentForeground: '#0d1017',
+    destructive: '#ef4343',
     destructiveForeground: '#ffffff',
-
-    // Borders and input outlines
-    border: '#e5e5e5',
-    input: '#e5e5e5',
+    success: '#22c55e',
+    successForeground: '#ffffff',
+    warning: '#f59f0a',
+    warningForeground: '#ffffff',
+    border: '#d3d6de',
+    input: '#d3d6de',
   },
-
-  // Border radius (in px). Sync from the sibling web artifact's --radius
-  // CSS variable. This value applies to cards, buttons, inputs, and modals.
-  radius: 8,
+  dark: {
+    text: '#dde2eb',
+    tint: '#3b82f6',
+    background: '#0d1017',
+    foreground: '#dde2eb',
+    card: '#161b27',
+    cardForeground: '#dde2eb',
+    primary: '#3b82f6',
+    primaryForeground: '#ffffff',
+    secondary: '#1e2333',
+    secondaryForeground: '#dde2eb',
+    muted: '#1e2333',
+    mutedForeground: '#8896a8',
+    accent: '#1e2333',
+    accentForeground: '#dde2eb',
+    destructive: '#ef4343',
+    destructiveForeground: '#ffffff',
+    success: '#22c55e',
+    successForeground: '#ffffff',
+    warning: '#f59f0a',
+    warningForeground: '#ffffff',
+    border: '#1e2333',
+    input: '#222c3c',
+  },
+  // 0.75rem = 12px — matches web --radius
+  radius: 12,
 };
 
 export default colors;

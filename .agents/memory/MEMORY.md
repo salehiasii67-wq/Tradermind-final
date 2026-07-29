@@ -1,0 +1,2 @@
+- [TraderMind audit findings](tradermind-audit.md) — backup importReplace now atomic (all 17 tables); PWA manifest added; seedService.ts Trade type has many required fields
+- [TraderMind mobile architecture](tradermind-mobile.md) — offline-first AsyncStorage, 4 tabs, Persian RTL via textAlign, dark #0d1017 palette from web CSS
