@@ -9,20 +9,21 @@ function createWindow() {
     height: 900,
     minWidth: 1000,
     minHeight: 700,
+    title: "TraderMind OS",
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
     },
   });
 
+  mainWindow.setMenuBarVisibility(false);
+
   const isDev = !app.isPackaged;
 
   if (isDev) {
     mainWindow.loadURL("http://localhost:5173");
   } else {
-    mainWindow.loadFile(
-      path.join(__dirname, "../dist/index.html")
-    );
+    mainWindow.loadFile(path.join(__dirname, "../dist/index.html"));
   }
 }
 
