@@ -1,0 +1,101 @@
+name: Build Windows EXE
+
+# ─── Triggers ─────────────────────────────────────────────────────────────────
+# • Push a version tag  →  git tag v1.0.0 && git push origin v1.0.0
+#   Builds EXE and creates a GitHub Release automatically.
+# • workflow_dispatch   →  manual run from the Actions tab (no release).
+# ─────────────────────────────────────────────────────────────────────────────
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: 'Create a GitHub Release after building?'
+        type: boolean
+        default: false
+
+jobs:
+  build-windows:
+    name: Build Windows Installer (x64)
+    runs-on: windows-latest
+
+    steps:
+      # ── 1. Source code ────────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── 2. Toolchain ──────────────────────────────────────────────────────────
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      # ── 3. Cache Electron binaries (saves ~3 minutes on repeat runs) ──────────
+      - name: Cache Electron binaries
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/AppData/Local/electron/Cache
+            ~/AppData/Local/electron-builder/Cache
+          key: electron-cache-${{ runner.os }}-${{ hashFiles('**/package.json') }}
+          restore-keys: |
+            electron-cache-${{ runner.os }}-
+
+      # ── 4. Dependencies ───────────────────────────────────────────────────────
+      - name: Install workspace dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      # ── 5. Build web app (Electron-specific Vite config) ──────────────────────
+      #    Uses vite.electron.config.ts:
+      #      • base: './'  — required for file:// protocol in Electron
+      #      • Output → artifacts/tradermind/dist/
+      #      • No PORT / BASE_PATH env vars needed
+      # ─────────────────────────────────────────────────────────────────────────
+      - name: Build Vite (Electron mode)
+        run: pnpm --filter @workspace/tradermind run electron:vite-build
+        env:
+          NODE_ENV: production
+
+      # ── 6. Package into Windows NSIS installer (.exe) ─────────────────────────
+      - name: Package Windows EXE (NSIS installer)
+        run: pnpm --filter @workspace/tradermind run electron:package-win
+        env:
+          # Prevents electron-builder rate-limiting when downloading Electron
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: artifacts/tradermind
+
+      # ── 7. Upload .exe as a workflow artifact (available in every run) ─────────
+      - name: Upload EXE artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TraderMind-Windows-EXE
+          path: artifacts/tradermind/release/*.exe
+          if-no-files-found: error
+          retention-days: 30
+
+      # ── 8. Publish GitHub Release (only on version tags or manual opt-in) ──────
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/') || inputs.create_release == true
+        uses: softprops/action-gh-release@v2
+        with:
+          name: TraderMind OS ${{ github.ref_name }}
+          body: |
+            ## TraderMind OS — Windows Installer
+
+            **نصب:** فایل `TraderMind*.exe` را دانلود کرده و اجرا کنید.
+
+            ### تغییرات این نسخه
+            _لیست تغییرات را اینجا بنویسید._
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-beta') || contains(github.ref_name, '-rc') }}
+          files: artifacts/tradermind/release/*.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
