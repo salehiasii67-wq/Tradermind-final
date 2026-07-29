@@ -1,20 +1,40 @@
-modules = ["nodejs-24"]
+name: Build TraderMind Windows
 
-[deployment]
-router = "application"
-deploymentTarget = "autoscale"
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
-[deployment.postBuild]
-args = ["pnpm", "store", "prune"]
-env = { "CI" = "true" }
+permissions:
+  contents: read
 
-[workflows]
-runButton = "Project"
+jobs:
+  build:
+    runs-on: windows-latest
 
-[agent]
-stack = "PNPM_WORKSPACE"
-expertMode = true
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
 
-[postMerge]
-path = "scripts/post-merge.sh"
-timeoutMs = 20000
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Build Electron App
+        run: pnpm electron:build-win
+
+      - name: Upload EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: TraderMind-Windows
+          path: release/**
